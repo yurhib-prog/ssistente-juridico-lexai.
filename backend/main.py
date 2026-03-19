@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict
 
 from modules.assistant import JuridicAssistant
+from modules.document_processor import DocumentProcessor
 
 # ═══════════════════════════════════════════════════
 # App Configuration
@@ -161,16 +162,20 @@ async def adicionar_documentos(request: AdicionarDocumentoRequest):
 
 @app.post("/api/upload")
 async def upload_documento(file: UploadFile = File(...)):
-    """Upload de documento para análise."""
+    """Upload de documento para análise e extração de texto (PDF, DOCX, TXT)."""
     try:
         conteudo = await file.read()
-        texto = conteudo.decode("utf-8")
-        resultado = assistant.analisar_documento(texto, fonte=file.filename or "upload")
-        num_chunks = assistant.adicionar_documento_texto(texto, fonte=file.filename or "upload")
+        filename = file.filename or "upload.txt"
+        
+        # Processa o binário e extrai o texto com OCR/pdfplumber ou docx
+        texto = DocumentProcessor.extract_text(conteudo, filename)
+        
+        # Analisa documento com assistente
+        resultado = assistant.analisar_documento(texto, fonte=filename)
+        num_chunks = assistant.adicionar_documento_texto(texto, fonte=filename)
         resultado["chunks_adicionados"] = num_chunks
+        
         return JSONResponse(content=resultado, status_code=200)
-    except UnicodeDecodeError:
-        raise HTTPException(status_code=400, detail="Arquivo deve ser texto UTF-8")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

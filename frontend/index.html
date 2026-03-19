@@ -394,9 +394,15 @@
                         <div class="analysis-upload">
                             <div class="upload-area" id="upload-area">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                                <h3>Arraste um documento ou cole o texto</h3>
-                                <p>Suporta texto plano (.txt) e conteúdo colado</p>
-                                <textarea id="analysis-input" class="analysis-textarea" placeholder="Cole o texto do documento jurídico aqui para análise completa..."></textarea>
+                                <h3>Upload de Arquivo (PDF, DOCX) ou Cole o Texto</h3>
+                                <p>Arraste um documento (.pdf, .docx, .txt) ou cole texto plano abaixo</p>
+                                <input type="file" id="analysis-file" accept=".pdf,.docx,.txt" style="display:none;" onchange="app.handleFileSelect(event)">
+                                <div class="file-drop-zone" id="file-drop-zone" onclick="document.getElementById('analysis-file').click()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:24px;height:24px;margin-bottom:8px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                                    <span id="file-name-display">Clique para selecionar ou arraste um arquivo aqui</span>
+                                </div>
+                                <div style="margin: 10px 0; font-size: 0.8rem; color: var(--text-tertiary);">OU</div>
+                                <textarea id="analysis-input" class="analysis-textarea" placeholder="Cole o texto do documento jurídico aqui..."></textarea>
                                 <button class="btn-primary" onclick="app.analyzeDocument()" id="analyze-btn">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
                                     Analisar Documento

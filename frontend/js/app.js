@@ -556,49 +556,100 @@ Valor da indenização fixado em R$ 250.000,00, com prazo de 30 dias úteis para
     }
 
     // ─── Analysis ───
+    handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+            document.getElementById('file-name-display').textContent = file.name;
+            this.selectedFile = file;
+            // Clear textarea to prioritize file
+            document.getElementById('analysis-input').value = '';
+        }
+    }
+
     async analyzeDocument() {
         const text = document.getElementById('analysis-input').value.trim();
-        if (!text) {
-            this.showToast('Cole o texto do documento', 'warning');
+        const file = this.selectedFile;
+        
+        if (!text && !file) {
+            this.showToast('Selecione um arquivo ou cole o texto', 'warning');
             return;
         }
 
         this.showLoading(true);
 
         try {
-            await this.sleep(600);
+            let result;
 
-            // Local analysis
-            const entities = this.entities.extract(text);
-            const grammarResult = this.grammar.correct(text);
-            const chunks = this.simpleChunking(text);
+            if (this.backendAvailable) {
+                if (file) {
+                    // Real multipart upload for PDF/DOCX
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const resp = await fetch(`${API_URL}/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (!resp.ok) throw new Error('Falha no upload');
+                    result = await resp.json();
+                } else {
+                    // Normal text analysis
+                    const resp = await fetch(`${API_URL}/analisar`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ texto: text, fonte: "Texto Colado" })
+                    });
+                    if (!resp.ok) throw new Error('Falha na análise');
+                    result = await resp.json();
+                }
+            } else {
+                // Modo demo local offline
+                if (file && file.name.endsWith('.pdf')) {
+                    this.showToast('Modo Demo: PDF ignorado. Configurando texto genérico.', 'info');
+                }
+                await this.sleep(600);
+                const baseText = file ? `Análise simulada do arquivo: ${file.name}. (Modo Demo)` : text;
+                const entities = this.entities.extract(baseText);
+                const grammarResult = this.grammar.correct(baseText);
+                const chunks = this.simpleChunking(baseText);
+                result = {
+                    documento: { texto_original: baseText, fonte: file ? file.name : "Texto Colado" },
+                    estrutura: { total_chunks: chunks.length, chunks: chunks.map(c => ({tipo: c.type, conteudo: c.content})) },
+                    entidades_extraidas: { total: entities.length, entidades: entities },
+                    conteudo_gramatical: grammarResult,
+                    referencias: entities.filter(e => ['lei', 'artigo', 'sumula', 'jurisprudencia'].includes(e.tipo))
+                };
+            }
 
-            // Display results
+            // Exibir resultados utilizando os retornos corretos seja do backend Python (real) ou Demo
             const resultsDiv = document.getElementById('analysis-results');
             resultsDiv.style.display = 'block';
 
-            // Structure
+            // Estrutura
+            const estr = result.estrutura || {};
+            const chnks = estr.chunks || [];
             document.getElementById('structure-body').innerHTML = `
                 <div style="font-size:0.88rem;">
-                    <div style="margin-bottom:8px;"><strong>${chunks.length}</strong> segmento(s) identificado(s)</div>
-                    ${chunks.map((c, i) => `
+                    <div style="margin-bottom:8px;"><strong>${estr.total_chunks || chnks.length}</strong> segmento(s) identificado(s)</div>
+                    ${chnks.map(c => `
                         <div style="padding:8px 10px;margin:4px 0;background:var(--bg-tertiary);border-radius:var(--radius-sm);border-left:3px solid var(--accent-blue);">
-                            <span style="font-size:0.72rem;color:var(--text-tertiary);">${c.type}</span><br>
-                            <span style="font-size:0.82rem;">${this.escapeHtml(c.content.substring(0, 120))}${c.content.length > 120 ? '...' : ''}</span>
+                            <span style="font-size:0.72rem;color:var(--text-tertiary);">${c.tipo || c.type}</span><br>
+                            <span style="font-size:0.82rem;">${this.escapeHtml((c.conteudo || c.content).substring(0, 150))}...</span>
                         </div>
                     `).join('')}
                 </div>`;
 
-            // Entities
+            // Entidades
+            const entsObj = result.entidades_extraidas || {};
+            const entitiesList = entsObj.entidades || [];
             const grouped = {};
-            entities.forEach(e => {
+            entitiesList.forEach(e => {
                 if (!grouped[e.tipo]) grouped[e.tipo] = [];
                 if (!grouped[e.tipo].includes(e.valor)) grouped[e.tipo].push(e.valor);
             });
 
             document.getElementById('entities-body').innerHTML = `
                 <div style="font-size:0.88rem;">
-                    <div style="margin-bottom:8px;"><strong>${entities.length}</strong> entidade(s)</div>
+                    <div style="margin-bottom:8px;"><strong>${entitiesList.length}</strong> entidade(s)</div>
                     ${Object.entries(grouped).map(([tipo, vals]) => `
                         <div style="margin-bottom:10px;">
                             <span style="font-size:0.72rem;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;">${tipo.replace(/_/g,' ')}</span>
@@ -609,12 +660,13 @@ Valor da indenização fixado em R$ 250.000,00, com prazo de 30 dias úteis para
                     `).join('')}
                 </div>`;
 
-            // Corrections
-            const corrections = grammarResult.corrections;
+            // Correções
+            const corr = result.conteudo_gramatical || (result.documento? result.correcoes_gramaticais : []) || [];
+            const correctionsList = corr.correcoes || corr || [];
             document.getElementById('corrections-body').innerHTML = `
                 <div style="font-size:0.88rem;">
-                    <div style="margin-bottom:8px;"><strong>${corrections.length}</strong> correção(ões)</div>
-                    ${corrections.slice(0, 10).map(c => {
+                    <div style="margin-bottom:8px;"><strong>${correctionsList.length}</strong> correção(ões)</div>
+                    ${correctionsList.slice(0, 10).map(c => {
                         const icons = { erro: '❌', aviso: '⚠️', info: 'ℹ️', critico: '🚨' };
                         return `<div style="padding:6px 0;border-bottom:1px solid var(--border-color);font-size:0.82rem;">
                             ${icons[c.severidade] || '•'} <span style="color:var(--accent-rose);text-decoration:line-through;">${this.escapeHtml(c.texto_original)}</span>
@@ -623,23 +675,25 @@ Valor da indenização fixado em R$ 250.000,00, com prazo de 30 dias úteis para
                     }).join('')}
                 </div>`;
 
-            // References
+            // Referências
+            const refs = result.referencias || [];
             document.getElementById('references-body').innerHTML = `
                 <div style="font-size:0.88rem;">
-                    ${entities.filter(e => ['lei', 'artigo', 'sumula', 'jurisprudencia'].includes(e.tipo)).length > 0
-                        ? entities.filter(e => ['lei', 'artigo', 'sumula', 'jurisprudencia'].includes(e.tipo))
-                            .map(e => `<div style="padding:4px 0;"><span class="entity-tag ${this.entityClass(e.tipo)}">${e.tipo}</span> ${e.valor}</div>`).join('')
-                        : '<p style="color:var(--text-tertiary);">Nenhuma referência normativa encontrada.</p>'}
+                    ${refs.length > 0
+                        ? refs.map(e => `<div style="padding:4px 0;"><span class="entity-tag ${this.entityClass(e.tipo)}">${e.tipo}</span> ${e.valor}</div>`).join('')
+                        : '<p style="color:var(--text-tertiary);">Nenhuma referência cross/normativa encontrada.</p>'}
                 </div>`;
 
-            this.stats.entities += entities.length;
-            this.stats.corrections += corrections.length;
+            this.stats.entities += entitiesList.length;
+            this.stats.corrections += correctionsList.length;
+            this.stats.docs += (result.chunks_adicionados ? 1 : 0);
             this.updateStats();
-            this.addActivity('Análise de documento', 'análise');
+            this.addActivity('Análise de documento' + (file? ` (${file.name})` : ''), 'análise');
             this.showToast('Análise concluída!', 'success');
 
         } catch (err) {
-            this.showToast('Erro na análise', 'error');
+            console.error(err);
+            this.showToast('Erro na análise. Verifique se é um PDF textual.', 'error');
         }
 
         this.showLoading(false);

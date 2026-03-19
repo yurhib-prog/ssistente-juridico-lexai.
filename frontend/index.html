@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LexAI — Assistente Jurídico com Inteligência Artificial para análise, correção e consulta de documentos jurídicos brasileiros.">
+    <title>LexAI — Assistente Jurídico com IA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <!-- App Container -->
+    <div id="app" class="app-container">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 32 32" fill="none">
+                            <path d="M16 2L4 8v8c0 7.732 5.12 14.96 12 16 6.88-1.04 12-8.268 12-16V8L16 2z" fill="url(#logoGrad)" opacity="0.2"/>
+                            <path d="M16 2L4 8v8c0 7.732 5.12 14.96 12 16 6.88-1.04 12-8.268 12-16V8L16 2z" stroke="url(#logoGrad)" stroke-width="1.5" fill="none"/>
+                            <path d="M12 14h8M12 18h6M16 10v2" stroke="url(#logoGrad)" stroke-width="1.5" stroke-linecap="round"/>
+                            <defs>
+                                <linearGradient id="logoGrad" x1="4" y1="2" x2="28" y2="26">
+                                    <stop stop-color="#60a5fa"/>
+                                    <stop offset="1" stop-color="#a78bfa"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-name">LexAI</span>
+                        <span class="logo-subtitle">Assistente Jurídico</span>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-view="dashboard" id="nav-dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-view="chat" id="nav-chat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                    <span>Chat IA</span>
+                </button>
+                <button class="nav-item" data-view="editor" id="nav-editor">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg>
+                    <span>Editor Jurídico</span>
+                </button>
+                <button class="nav-item" data-view="analysis" id="nav-analysis">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+                    <span>Análise</span>
+                </button>
+                <button class="nav-item" data-view="search" id="nav-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    <span>Busca Legal</span>
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="system-status">
+                    <div class="status-dot online"></div>
+                    <span>Sistema Ativo</span>
+                </div>
+                <div class="version-info">v1.0.0 — Demo</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <button class="mobile-menu-btn" id="mobile-menu-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                    </button>
+                    <h1 class="page-title" id="page-title">Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="search-bar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                        <input type="text" placeholder="Buscar na base jurídica..." id="global-search">
+                    </div>
+                    <div class="header-actions">
+                        <button class="icon-btn" id="theme-toggle" title="Alternar tema">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Views -->
+            <div class="content-area" id="content-area">
+
+                <!-- ═══════ DASHBOARD VIEW ═══════ -->
+                <section class="view active" id="view-dashboard">
+                    <div class="dashboard-grid">
+                        <!-- Stats Cards -->
+                        <div class="stat-card" id="stat-queries">
+                            <div class="stat-icon blue">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="total-queries">0</span>
+                                <span class="stat-label">Consultas Realizadas</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card" id="stat-docs">
+                            <div class="stat-icon purple">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><path d="M14 2v6h6"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="total-docs">10</span>
+                                <span class="stat-label">Documentos na Base</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card" id="stat-entities">
+                            <div class="stat-icon emerald">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="total-entities">0</span>
+                                <span class="stat-label">Entidades Extraídas</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card" id="stat-corrections">
+                            <div class="stat-icon amber">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="total-corrections">0</span>
+                                <span class="stat-label">Correções Aplicadas</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Architecture Diagram -->
+                        <div class="card full-width" id="arch-card">
+                            <div class="card-header">
+                                <h2>🏗️ Arquitetura do Sistema</h2>
+                                <span class="badge badge-blue">6 Camadas</span>
+                            </div>
+                            <div class="architecture-flow">
+                                <div class="arch-layer">
+                                    <div class="arch-node input">
+                                        <span class="arch-icon">🌐</span>
+                                        <span class="arch-label">Interface Web/API</span>
+                                    </div>
+                                </div>
+                                <div class="arch-arrow">▼</div>
+                                <div class="arch-layer">
+                                    <div class="arch-node process">
+                                        <span class="arch-icon">⚙️</span>
+                                        <span class="arch-label">Preprocessamento</span>
+                                    </div>
+                                    <div class="arch-node process">
+                                        <span class="arch-icon">✍️</span>
+                                        <span class="arch-label">Correção Gramatical</span>
+                                    </div>
+                                </div>
+                                <div class="arch-arrow">▼</div>
+                                <div class="arch-layer">
+                                    <div class="arch-node rag">
+                                        <span class="arch-icon">🔍</span>
+                                        <span class="arch-label">Embedding</span>
+                                    </div>
+                                    <div class="arch-node rag">
+                                        <span class="arch-icon">📊</span>
+                                        <span class="arch-label">Busca Híbrida</span>
+                                    </div>
+                                    <div class="arch-node rag">
+                                        <span class="arch-icon">🔄</span>
+                                        <span class="arch-label">Reranking</span>
+                                    </div>
+                                </div>
+                                <div class="arch-arrow">▼</div>
+                                <div class="arch-layer">
+                                    <div class="arch-node data">
+                                        <span class="arch-icon">🗄️</span>
+                                        <span class="arch-label">STF / STJ / LexML</span>
+                                    </div>
+                                    <div class="arch-node data">
+                                        <span class="arch-icon">📦</span>
+                                        <span class="arch-label">Vector DB</span>
+                                    </div>
+                                </div>
+                                <div class="arch-arrow">▼</div>
+                                <div class="arch-layer">
+                                    <div class="arch-node llm">
+                                        <span class="arch-icon">🤖</span>
+                                        <span class="arch-label">LLM (Sabiá-3 / GPT-4o)</span>
+                                    </div>
+                                    <div class="arch-node llm">
+                                        <span class="arch-icon">✅</span>
+                                        <span class="arch-label">Grounding Check</span>
+                                    </div>
+                                </div>
+                                <div class="arch-arrow">▼</div>
+                                <div class="arch-layer">
+                                    <div class="arch-node output">
+                                        <span class="arch-icon">📝</span>
+                                        <span class="arch-label">Editor Jurídico</span>
+                                    </div>
+                                    <div class="arch-node output">
+                                        <span class="arch-icon">⚖️</span>
+                                        <span class="arch-label">Integração PJe</span>
+                                    </div>
+                                    <div class="arch-node output">
+                                        <span class="arch-icon">👤</span>
+                                        <span class="arch-label">Usuário Final</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        <div class="card" id="quick-actions-card">
+                            <div class="card-header">
+                                <h2>⚡ Ações Rápidas</h2>
+                            </div>
+                            <div class="quick-actions">
+                                <button class="action-btn" onclick="app.switchView('chat')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                                    <span>Nova Consulta</span>
+                                </button>
+                                <button class="action-btn" onclick="app.switchView('editor')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    <span>Corrigir Texto</span>
+                                </button>
+                                <button class="action-btn" onclick="app.switchView('analysis')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+                                    <span>Analisar Documento</span>
+                                </button>
+                                <button class="action-btn" onclick="app.switchView('search')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                                    <span>Busca Legal</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Activity -->
+                        <div class="card" id="recent-card">
+                            <div class="card-header">
+                                <h2>📋 Atividade Recente</h2>
+                            </div>
+                            <div class="activity-list" id="activity-list">
+                                <div class="empty-state">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+                                    <p>Nenhuma atividade ainda.</p>
+                                    <p class="subtle">Faça sua primeira consulta para começar!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════ CHAT VIEW ═══════ -->
+                <section class="view" id="view-chat">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="message system">
+                                <div class="message-avatar system-avatar">
+                                    <svg viewBox="0 0 32 32" fill="none">
+                                        <path d="M16 2L4 8v8c0 7.732 5.12 14.96 12 16 6.88-1.04 12-8.268 12-16V8L16 2z" fill="url(#msgGrad)" opacity="0.3"/>
+                                        <path d="M12 14h8M12 18h6M16 10v2" stroke="url(#msgGrad)" stroke-width="1.5" stroke-linecap="round"/>
+                                        <defs><linearGradient id="msgGrad" x1="4" y1="2" x2="28" y2="26"><stop stop-color="#60a5fa"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs>
+                                    </svg>
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <span class="message-name">LexAI</span>
+                                        <span class="message-time">Agora</span>
+                                    </div>
+                                    <div class="message-text">
+                                        <p>Olá! Sou o <strong>LexAI</strong>, seu assistente jurídico com inteligência artificial. 🏛️</p>
+                                        <p>Posso ajudá-lo com:</p>
+                                        <ul>
+                                            <li>📚 <strong>Consultas jurídicas</strong> — busca em legislação e jurisprudência</li>
+                                            <li>✍️ <strong>Correção gramatical</strong> — especializada em linguagem jurídica</li>
+                                            <li>🔍 <strong>Extração de entidades</strong> — leis, artigos, tribunais</li>
+                                            <li>📊 <strong>Análise de documentos</strong> — estrutura e referências</li>
+                                        </ul>
+                                        <p>Como posso ajudá-lo hoje?</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-suggestions" id="chat-suggestions">
+                            <button class="suggestion-chip" onclick="app.sendSuggestion('Qual a função social da propriedade rural?')">
+                                🏡 Função social da propriedade
+                            </button>
+                            <button class="suggestion-chip" onclick="app.sendSuggestion('Quais são os crimes ambientais previstos na Lei 9.605/98?')">
+                                🌿 Crimes ambientais
+                            </button>
+                            <button class="suggestion-chip" onclick="app.sendSuggestion('Como funciona a desapropriação para reforma agrária?')">
+                                ⚖️ Desapropriação
+                            </button>
+                            <button class="suggestion-chip" onclick="app.sendSuggestion('O que diz o Estatuto da Terra sobre a Política Agrícola?')">
+                                📜 Estatuto da Terra
+                            </button>
+                        </div>
+                        
+                        <div class="chat-input-area">
+                            <div class="chat-input-wrapper">
+                                <textarea id="chat-input" placeholder="Digite sua consulta jurídica..." rows="1"></textarea>
+                                <button class="send-btn" id="send-btn" onclick="app.sendMessage()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                                </button>
+                            </div>
+                            <div class="chat-input-info">
+                                <span>💡 Dica: Use termos jurídicos específicos para melhores resultados</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════ EDITOR VIEW ═══════ -->
+                <section class="view" id="view-editor">
+                    <div class="editor-container">
+                        <div class="editor-toolbar">
+                            <div class="toolbar-group">
+                                <button class="toolbar-btn" onclick="app.loadSampleText()" title="Carregar texto exemplo">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><path d="M14 2v6h6"/></svg>
+                                    Exemplo
+                                </button>
+                                <button class="toolbar-btn primary" onclick="app.correctText()" title="Corrigir texto" id="correct-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    Corrigir
+                                </button>
+                                <button class="toolbar-btn" onclick="app.extractEntities()" title="Extrair entidades" id="extract-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+                                    Entidades
+                                </button>
+                            </div>
+                            <div class="toolbar-group">
+                                <button class="toolbar-btn" onclick="app.clearEditor()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>
+                                    Limpar
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="editor-split">
+                            <div class="editor-pane">
+                                <div class="pane-header">
+                                    <span>📝 Texto Original</span>
+                                    <span class="char-count" id="char-count">0 caracteres</span>
+                                </div>
+                                <textarea id="editor-input" class="editor-textarea" placeholder="Cole ou digite seu texto jurídico aqui para correção e análise..."></textarea>
+                            </div>
+                            
+                            <div class="editor-pane">
+                                <div class="pane-header">
+                                    <span>✅ Resultado</span>
+                                    <span class="correction-count" id="correction-count"></span>
+                                </div>
+                                <div id="editor-output" class="editor-output">
+                                    <div class="empty-state small">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        <p>Cole um texto e clique em <strong>"Corrigir"</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Corrections Panel -->
+                        <div class="corrections-panel" id="corrections-panel" style="display:none;">
+                            <div class="panel-header">
+                                <h3>📋 Correções Encontradas</h3>
+                                <button class="close-panel" onclick="document.getElementById('corrections-panel').style.display='none'">✕</button>
+                            </div>
+                            <div class="corrections-list" id="corrections-list"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════ ANALYSIS VIEW ═══════ -->
+                <section class="view" id="view-analysis">
+                    <div class="analysis-container">
+                        <div class="analysis-upload">
+                            <div class="upload-area" id="upload-area">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                                <h3>Arraste um documento ou cole o texto</h3>
+                                <p>Suporta texto plano (.txt) e conteúdo colado</p>
+                                <textarea id="analysis-input" class="analysis-textarea" placeholder="Cole o texto do documento jurídico aqui para análise completa..."></textarea>
+                                <button class="btn-primary" onclick="app.analyzeDocument()" id="analyze-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+                                    Analisar Documento
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="analysis-results" id="analysis-results" style="display:none;">
+                            <div class="results-grid">
+                                <div class="result-card" id="result-structure">
+                                    <div class="result-header">
+                                        <h3>📐 Estrutura do Documento</h3>
+                                    </div>
+                                    <div class="result-body" id="structure-body"></div>
+                                </div>
+                                <div class="result-card" id="result-entities">
+                                    <div class="result-header">
+                                        <h3>🏛️ Entidades Jurídicas</h3>
+                                    </div>
+                                    <div class="result-body" id="entities-body"></div>
+                                </div>
+                                <div class="result-card" id="result-corrections-analysis">
+                                    <div class="result-header">
+                                        <h3>✍️ Correções Sugeridas</h3>
+                                    </div>
+                                    <div class="result-body" id="corrections-body"></div>
+                                </div>
+                                <div class="result-card" id="result-references">
+                                    <div class="result-header">
+                                        <h3>🔗 Referências Cruzadas</h3>
+                                    </div>
+                                    <div class="result-body" id="references-body"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════ SEARCH VIEW ═══════ -->
+                <section class="view" id="view-search">
+                    <div class="search-container">
+                        <div class="search-hero">
+                            <h2>🔍 Busca na Base Jurídica</h2>
+                            <p>Pesquise em legislação, jurisprudência e normas utilizando busca híbrida (BM25 + Semântica)</p>
+                            <div class="search-input-large">
+                                <input type="text" id="legal-search-input" placeholder="Ex: função social propriedade rural reforma agrária...">
+                                <button class="search-submit" onclick="app.legalSearch()" id="search-submit-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                                    Buscar
+                                </button>
+                            </div>
+                            <div class="search-options">
+                                <label class="search-option">
+                                    <input type="radio" name="search-method" value="hibrido" checked>
+                                    <span>🔄 Híbrido</span>
+                                </label>
+                                <label class="search-option">
+                                    <input type="radio" name="search-method" value="bm25">
+                                    <span>📝 BM25 (Léxico)</span>
+                                </label>
+                                <label class="search-option">
+                                    <input type="radio" name="search-method" value="semantico">
+                                    <span>🧠 Semântico</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="search-results" id="search-results">
+                            <div class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                                <p>Digite sua busca para encontrar documentos relevantes</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <span class="loading-text">Processando...</span>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
